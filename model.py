@@ -1,6 +1,7 @@
 from os.path import exists
 from logger import LOG
 from variables import *
+from csv import reader
 
 id_number = 0
 table_students = []
@@ -46,3 +47,18 @@ def save_data():
         for student in table_students:
             file.writelines(' '.join(map(str, student.values())))
             file.write('\n')
+
+@LOG
+def delete_data(file_name='student.csv'):
+    '''Удаление записи'''
+    show_dict_txt()
+    with open(file_name, 'r', encoding='UTF-8') as file:
+        list_of_rows = list(reader(file, delimiter=' '))
+    delete_id = input('Введите ИД строки, которую хотите удалить: ')
+    with open(file_name, 'w', encoding='UTF-8') as file:
+        for line in list_of_rows:
+            if line[0] != delete_id:
+                lst = ' '.join(str(item) for item in line)
+                file.write(lst + '\n')
+        print(f'Запись с id = {delete_id} удалена')
+

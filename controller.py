@@ -15,6 +15,6 @@ def run():
             case '4':
                 pass
             case '5':
-                pass
+                model.delete_data()
             case '6':
                 exit()
