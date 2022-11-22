@@ -13,7 +13,7 @@ def run():
             case '3':
                 model.save_data()
             case '4':
-                pass
+                model.correction_data()
             case '5':
                 model.delete_data()
             case '6':
