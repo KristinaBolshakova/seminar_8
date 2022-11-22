@@ -2,8 +2,9 @@ from os.path import exists
 from logger import LOG
 from variables import *
 from csv import reader
+from prettytable import PrettyTable
 
-id_number = 0
+id_number = 1
 table_students = []
 
 
@@ -19,12 +20,16 @@ def increase_id():
 def show_dict_txt():
     '''Показать спарвочник если существует'''
     try:
-        with open(file_name, 'r', encoding='utf-8') as file:
-            file_content = file.read()
-            print(file_content)
-
+        read_file()
+        print_table()
     except IOError:
         print(f'Справочник {file_name} не существует, можно добавить данные пункт 2 меню')
+
+def print_table():
+    t = PrettyTable(field_names)
+    t.add_rows(list_of_rows)
+    print(t)
+
 
 
 # Создание и запись
@@ -35,7 +40,6 @@ def enter_stud_data():
     student[field_names[0]] = id_number
     for key in field_names[1:]:
         student[key] = input(f'{key}: ')
-    # add_student(student)
     table_students.append(student)
     increase_id()
 
@@ -48,12 +52,17 @@ def save_data():
             file.writelines(' '.join(map(str, student.values())))
             file.write('\n')
 
+
+def read_file(file_name='student.csv'):
+    global list_of_rows
+    with open(file_name, 'r', encoding='UTF-8') as file:
+        list_of_rows = list(reader(file, delimiter=' '))
+
+
 @LOG
 def delete_data(file_name='student.csv'):
     '''Удаление записи'''
     show_dict_txt()
-    with open(file_name, 'r', encoding='UTF-8') as file:
-        list_of_rows = list(reader(file, delimiter=' '))
     delete_id = input('Введите ИД строки, которую хотите удалить: ')
     with open(file_name, 'w', encoding='UTF-8') as file:
         for line in list_of_rows:
@@ -61,4 +70,3 @@ def delete_data(file_name='student.csv'):
                 lst = ' '.join(str(item) for item in line)
                 file.write(lst + '\n')
         print(f'Запись с id = {delete_id} удалена')
-
