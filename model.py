@@ -1,18 +1,31 @@
-from os.path import exists
+import os.path
+from os.path import exists, isfile
 from logger import LOG
 from variables import *
 from csv import reader
 from prettytable import PrettyTable
 
-id_number = 1
 table_students = []
 
-
 @LOG
-def increase_id():
-    '''Увеличение id'''
+def check_exists_id():
+    '''Проверка и увеличение id'''
+    global max_id
     global id_number
-    id_number += 1
+    if os.path.isfile(file_name):
+        read_file()
+        lst_id = []
+        for row in list_of_rows:
+            lst_id.append(row[0])
+        if len(lst_id) > 0:
+            max_id = int(max(lst_id))
+            id_number = max_id + 1
+        else:
+            id_number = 1
+    else:
+        id_number = 1
+
+
 
 
 @LOG
@@ -36,11 +49,13 @@ def print_table():
 def enter_stud_data():
     '''Создание новой записи'''
     student = {}
+    check_exists_id()
     student[field_names[0]] = id_number
     for key in field_names[1:]:
         student[key] = input(f'{key}: ')
-    table_students.append(student)
-    increase_id()
+    with open(file_name, 'a+', encoding='utf-8') as file:
+        file.writelines(';'.join(map(str, student.values())))
+        file.write('\n')
 
 
 @LOG
@@ -48,14 +63,15 @@ def save_data():
     '''Запись в файл'''
     with open(file_name, 'a+', encoding='utf-8') as file:
         for student in table_students:
-            file.writelines(' '.join(map(str, student.values())))
+            file.writelines(';'.join(map(str, student.values())))
             file.write('\n')
 
 
 def read_file(file_name='student.csv'):
     global list_of_rows
     with open(file_name, 'r', encoding='UTF-8') as file:
-        list_of_rows = list(reader(file, delimiter=' '))
+        list_of_rows = list(reader(file, delimiter=';'))
+
 
 
 @LOG
@@ -66,7 +82,7 @@ def delete_data(file_name='student.csv'):
     with open(file_name, 'w', encoding='UTF-8') as file:
         for line in list_of_rows:
             if line[0] != delete_id:
-                lst = ' '.join(str(item) for item in line)
+                lst = ';'.join(str(item) for item in line)
                 file.write(lst + '\n')
         print(f'Запись с id = {delete_id} удалена')
 
@@ -83,7 +99,7 @@ def correction_data(file_name='student.csv'):
         for line in list_of_rows:
             if line[0] == corr_line:
                 line[int(corr_item)] = corr_new_item
-            lst = ' '.join(str(item) for item in line)
+            lst = ';'.join(str(item) for item in line)
             file.write(lst + '\n')
         print(f'Запись с id {corr_line} изменена ')
     print_table()
